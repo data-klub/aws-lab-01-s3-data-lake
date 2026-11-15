@@ -29,10 +29,31 @@ generate.py ──► data/listings.parquet ──► analyze.py   (pandas: medi
 
 ## AWS setup
 
-- An IAM user (not root) with S3 access for the CLI and SDK.
-- A private S3 bucket with Block Public Access left on.
-- Region: the account's home region. New accounts can be restricted to a single region by a
-  service control policy, so check that first if you get `explicit deny in a service control policy`.
+- Root user protected with MFA (a passkey) and a zero-spend budget alert. Root is used only for setup.
+- A private S3 bucket (`eu-central-1`) with Block Public Access on and SSE-S3 encryption.
+- An IAM user for the CLI and SDK with **least privilege**: one inline policy that allows only
+  this bucket. It can't list other buckets, create buckets or touch IAM.
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    { "Sid": "ListThisBucket", "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::<bucket>" },
+    { "Sid": "ReadWriteObjectsInThisBucket", "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
+      "Resource": "arn:aws:s3:::<bucket>/*" }
+  ]
+}
+```
+
+`ListBucket` acts on the bucket ARN; object actions need the `/*` object ARN. Mixing them up is
+the most common S3 policy bug.
+
+**Sign-up tip:** use the classic "(advanced)" AWS sign-up. Accounts from the newer project-style
+sign-up can be pinned to one region by a service control policy (`explicit deny in a service
+control policy`), and they have no root login.
 
 ## Run it
 
@@ -50,11 +71,12 @@ Set `BUCKET` in `upload.py` to your own bucket name.
 ## Skills covered
 
 S3 (buckets, keys, prefixes, partitioned layout), IAM users and access keys, the AWS CLI,
-boto3 (clients, paginators, streaming bodies, `ClientError`), debugging an SCP explicit deny,
+boto3 (clients, paginators, streaming bodies, `ClientError`), least-privilege IAM, root MFA,
+explicit deny (SCP) vs implicit deny (no allowing policy),
 and pandas (groupby, boolean filters, medians).
 
 ## Roadmap
 
-- [ ] Least-privilege IAM policy scoped to one bucket
+- [x] Least-privilege IAM policy scoped to one bucket (see below)
 - [ ] Query the Parquet files with SQL in Athena (Glue Data Catalog, partitions)
 - [ ] Run the generator daily with Lambda and EventBridge Scheduler

@@ -8,7 +8,7 @@ import boto3
 import pandas as pd
 from botocore.exceptions import ClientError
 
-BUCKET = "house-sandbox-k7q2"
+BUCKET = "data-klub-lab-k7q2"
 LOCAL_FILE = Path("data") / "listings.parquet"
 
 s3 = boto3.client("s3")  # uses your `aws configure` keys and region automatically
