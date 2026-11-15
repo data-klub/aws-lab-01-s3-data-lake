@@ -13,13 +13,27 @@ All data is synthetic. No real listings and no credentials are stored in this re
 
 ## Architecture
 
+**In AWS (runs daily on its own):**
+
+```
+EventBridge Scheduler (06:00 Europe/Warsaw)
+   └──► Lambda generate-listings (Python 3.12 + AWSSDKPandas layer)
+           └──► s3://<bucket>/raw/listings/ingest_date=YYYY-MM-DD/listings.parquet
+                   └──► Glue Data Catalog table data_klub.listings ──► Athena SQL
+```
+
+**Locally (learning and checks):**
+
 ```
 generate.py ──► data/listings.parquet ──► analyze.py   (pandas: medians by district, filters)
-                         │
-                         └──► upload.py ──► s3://<bucket>/raw/listings/ingest_date=YYYY-MM-DD/listings.parquet
-                                               │
-                                               └──► read back into pandas (round-trip check)
+                         └──► upload.py ──► S3 ──► read back into pandas (round-trip check)
 ```
+
+| Path | What |
+|---|---|
+| `lambda/lambda_function.py` | The deployed Lambda. Seeded by date, so a rerun of the same day gives the same data. `{"date": "YYYY-MM-DD"}` backfills |
+| `athena/queries.sql` | Table DDL, partition repair, and the queries |
+| `generate.py`, `analyze.py`, `upload.py` | Local generator, pandas analysis, boto3 round trip |
 
 - **Deterministic generator:** a fixed seed means the same 1,000 rows every run.
 - **Parquet:** columnar and typed. 1,000 rows take about 21 KB.
@@ -51,6 +65,18 @@ generate.py ──► data/listings.parquet ──► analyze.py   (pandas: medi
 `ListBucket` acts on the bucket ARN; object actions need the `/*` object ARN. Mixing them up is
 the most common S3 policy bug.
 
+Each workload has its own role and no stored keys:
+
+| Identity | Can do |
+|---|---|
+| IAM user `lab-cli` (laptop) | List, read, write and delete objects in this bucket only |
+| Lambda execution role | `s3:PutObject` on `raw/listings/*` only (no read, list or delete), plus its own logs |
+| Scheduler role | Invoke the one Lambda function |
+
+**Lambda gotcha:** layers with compiled code (numpy, pandas, pyarrow) must match the function's
+Python version **and** CPU architecture. An x86_64 layer on an arm64 function fails with
+`Unable to import required dependency numpy`.
+
 **Sign-up tip:** use the classic "(advanced)" AWS sign-up. Accounts from the newer project-style
 sign-up can be pinned to one region by a service control policy (`explicit deny in a service
 control policy`), and they have no root login.
@@ -72,11 +98,16 @@ Set `BUCKET` in `upload.py` to your own bucket name.
 
 S3 (buckets, keys, prefixes, partitioned layout), IAM users and access keys, the AWS CLI,
 boto3 (clients, paginators, streaming bodies, `ClientError`), least-privilege IAM, root MFA,
-explicit deny (SCP) vs implicit deny (no allowing policy),
+explicit deny (SCP) vs implicit deny (no allowing policy), Lambda (layers, execution roles,
+cold starts), EventBridge Scheduler (cron), Athena and the Glue Data Catalog (external tables,
+partitions, partition pruning),
 and pandas (groupby, boolean filters, medians).
 
 ## Roadmap
 
 - [x] Least-privilege IAM policy scoped to one bucket (see below)
-- [ ] Query the Parquet files with SQL in Athena (Glue Data Catalog, partitions)
-- [ ] Run the generator daily with Lambda and EventBridge Scheduler
+- [x] Query the Parquet files with SQL in Athena (Glue Data Catalog, partitions), reconciled against pandas
+- [x] Run the generator daily with Lambda and EventBridge Scheduler, with date-based backfills
+- [ ] Athena partition projection, so new days appear without `MSCK REPAIR`
+- [ ] Infrastructure as code (AWS CDK or Terraform) instead of console clicks
+- [ ] Alerting on Lambda failures (CloudWatch alarm)
