@@ -103,11 +103,27 @@ cold starts), EventBridge Scheduler (cron), Athena and the Glue Data Catalog (ex
 partitions, partition pruning),
 and pandas (groupby, boolean filters, medians).
 
+## Status (2026-11-16)
+
+- The daily schedule is live. The first unattended run at 06:00 Europe/Warsaw landed
+  `ingest_date=2026-11-16`.
+- Partitions in S3: 2026-11-14 (manual backfill), 2026-11-15 and 2026-11-16, with 1,000 rows each.
+- Athena median price per m² by district matches pandas to within 0.25%.
+
 ## Roadmap
 
-- [x] Least-privilege IAM policy scoped to one bucket (see below)
+Done:
+
+- [x] Least-privilege IAM policy scoped to one bucket
 - [x] Query the Parquet files with SQL in Athena (Glue Data Catalog, partitions), reconciled against pandas
 - [x] Run the generator daily with Lambda and EventBridge Scheduler, with date-based backfills
-- [ ] Athena partition projection, so new days appear without `MSCK REPAIR`
-- [ ] Infrastructure as code (AWS CDK or Terraform) instead of console clicks
-- [ ] Alerting on Lambda failures (CloudWatch alarm)
+
+Next, as a one-week sprint:
+
+- [ ] Day 1: backfill from 2026-10-01, Athena partition projection, CloudWatch alarm with SNS email on Lambda errors
+- [ ] Day 2: Glue PySpark job, bronze → silver as an Apache Iceberg table
+- [ ] Day 3: dbt-athena gold model (median price per m² by district per day) with dbt tests
+- [ ] Day 4: Step Functions orchestration (Lambda → Glue → gold refresh), with retries and failure alerts
+- [ ] Day 5: infrastructure as code with AWS CDK (Python)
+- [ ] Day 6: Tableau dashboard on the Athena gold layer, plus an architecture diagram
+- [ ] Day 7: review, plus AWS Cloud Practitioner exam preparation
