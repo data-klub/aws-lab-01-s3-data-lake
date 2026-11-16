@@ -6,7 +6,7 @@ flat listings, pandas analyses them, and the files land in Amazon S3 as date-par
 the layout real data lakes use.
 
 It is a warm-up for the club's main project,
-[House_Prices](https://github.com/kubilayf/House_Prices): a medallion lakehouse on Databricks
+[House_Prices](https://github.com/data-klub/House_Prices): a medallion lakehouse on Databricks
 fed by a mock listings API.
 
 All data is synthetic. No real listings and no credentials are stored in this repo.
