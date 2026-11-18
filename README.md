@@ -103,11 +103,11 @@ cold starts), EventBridge Scheduler (cron), Athena and the Glue Data Catalog (ex
 partitions, partition pruning),
 and pandas (groupby, boolean filters, medians).
 
-## Status (2026-11-16)
+## Status (2026-11-18)
 
-- The daily schedule is live. The first unattended run at 06:00 Europe/Warsaw landed
-  `ingest_date=2026-11-16`.
-- Partitions in S3: 2026-11-14 (manual backfill), 2026-11-15 and 2026-11-16, with 1,000 rows each.
+- The daily schedule is live. Every run since 2026-11-16 at 06:00 Europe/Warsaw has landed
+  without anyone touching it.
+- Partitions in S3: 2026-11-14 (manual backfill) through 2026-11-18, with 1,000 rows each.
 - Athena median price per m² by district matches pandas to within 0.25%.
 
 ## Roadmap
