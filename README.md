@@ -7,7 +7,13 @@ the layout real data lakes use.
 
 It is a warm-up for the club's main project,
 [House_Prices](https://github.com/data-klub/House_Prices): a medallion lakehouse on Databricks
-fed by a mock listings API.
+fed by a mock listings API. The two are independent: House_Prices runs on Databricks Free Edition
+and doesn't need AWS, so this lab is optional practice for anyone who wants to learn AWS.
+
+**Cost:** the AWS free plan covers this lab; a full month of daily runs costs a fraction of a cent.
+Set a zero-spend budget before you build anything (see AWS setup below).
+
+Data Klub meets every Wednesday at 19:00 (Warsaw time). Questions go to Discord.
 
 All data is synthetic. No real listings and no credentials are stored in this repo.
 
