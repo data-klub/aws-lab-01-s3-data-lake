@@ -1,4 +1,5 @@
 """Explore the fake listings."""
+
 import pandas as pd
 
 df = pd.read_parquet("data/listings.parquet")

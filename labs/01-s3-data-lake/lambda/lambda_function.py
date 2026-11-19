@@ -8,7 +8,7 @@ EventBridge Scheduler. Pass {"date": "YYYY-MM-DD"} to backfill a past day.
 import io
 import os
 import random
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 
 import boto3
 import pandas as pd
@@ -48,7 +48,7 @@ def lambda_handler(event, context):
     if "date" in event:
         day = date.fromisoformat(event["date"])
     else:
-        day = datetime.now(timezone.utc).date()
+        day = datetime.now(UTC).date()
 
     rng = random.Random(int(day.strftime("%Y%m%d")))
     df = pd.DataFrame([make_listing(rng, i, day) for i in range(N_LISTINGS)])

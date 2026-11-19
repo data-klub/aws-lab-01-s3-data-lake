@@ -1,19 +1,33 @@
 [project]
-name = "aws-sandbox"
+name = "house-prices-generator"
 version = "0.1.0"
-description = "Add your description here"
+description = "Seeded simulator of the Polish housing market, served through a mock listings API, for the Data Klub House_Prices pipeline."
 readme = "README.md"
 authors = [{ name = "Kubilay" }]
 requires-python = ">=3.12"
 dependencies = [
-    "boto3>=1.44.3",
     "pandas>=3.1.1",
     "pyarrow>=26.0.1",
+    "pyyaml>=6.0",
 ]
 
-[project.scripts]
-aws-sandbox = "aws_sandbox:main"
+[dependency-groups]
+dev = [
+    "pre-commit>=4.0",
+    "pytest>=8.0",
+    "ruff>=0.17.3",
+]
+lab = [
+    "boto3>=1.44.3",
+]
 
 [build-system]
 requires = ["uv_build>=0.13.7,<0.14.0"]
 build-backend = "uv_build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
