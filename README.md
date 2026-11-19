@@ -13,7 +13,7 @@ and doesn't need AWS, so this lab is optional practice for anyone who wants to l
 **Cost:** the AWS free plan covers this lab; a full month of daily runs costs a fraction of a cent.
 Set a zero-spend budget before you build anything (see AWS setup below).
 
-Data Klub meets every Wednesday at 19:00 (Warsaw time). Questions go to Discord.
+Data Klub meets every Wednesday at 19:00 (Warsaw time) on Discord. Questions go there too.
 
 All data is synthetic. No real listings and no credentials are stored in this repo.
 
